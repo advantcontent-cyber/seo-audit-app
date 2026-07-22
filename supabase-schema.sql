@@ -2,6 +2,7 @@ create table if not exists audit_runs (
   id uuid primary key default gen_random_uuid(),
   domain text not null,
   pages_checked int not null,
+  health_score int not null default 100,
   summary jsonb not null,
   findings jsonb not null,
   started_at timestamptz not null,

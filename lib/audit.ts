@@ -27,6 +27,17 @@ export interface AuditResult {
   pagesChecked: number;
   findings: Finding[];
   summary: Record<Severity, number>;
+  healthScore: number;
+}
+
+const SEVERITY_PENALTY: Record<Severity, number> = { critical: 15, high: 8, medium: 3, low: 1 };
+
+function computeHealthScore(summary: Record<Severity, number>): number {
+  const penalty = (Object.keys(summary) as Severity[]).reduce(
+    (sum, sev) => sum + summary[sev] * SEVERITY_PENALTY[sev],
+    0
+  );
+  return Math.max(0, Math.min(100, 100 - penalty));
 }
 
 const MAX_PAGES = 20; // v1 crawl limit — keep runs fast; raise once this is proven out
@@ -375,5 +386,6 @@ export async function runAudit(domainInput: string, pagespeedApiKey?: string): P
       return order.indexOf(a.severity) - order.indexOf(b.severity);
     }),
     summary,
+    healthScore: computeHealthScore(summary),
   };
 }

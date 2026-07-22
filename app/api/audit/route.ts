@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       await supabaseServer.from("audit_runs").insert({
         domain: result.domain,
         pages_checked: result.pagesChecked,
+        health_score: result.healthScore,
         summary: result.summary,
         findings: result.findings,
         started_at: result.startedAt,
