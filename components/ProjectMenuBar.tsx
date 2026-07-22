@@ -14,8 +14,8 @@ export default function ProjectMenuBar({ projectId }: { projectId: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="border-b border-line bg-surface">
-      <div className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-6 sm:px-10">
+    <nav className="border-b border-line bg-surface px-6 sm:px-10">
+      <div className="mx-auto flex max-w-5xl gap-1 overflow-x-auto">
         {ITEMS.map((item) => {
           const href = item.slug ? `/projects/${projectId}/${item.slug}` : `/projects/${projectId}`;
           const isActive = item.slug ? pathname?.startsWith(href) : pathname === `/projects/${projectId}`;
