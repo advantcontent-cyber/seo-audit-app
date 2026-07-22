@@ -1,14 +1,9 @@
 import * as cheerio from "cheerio";
+import { normalizeDomain } from "./domain";
+import type { Severity, Finding, AuditResult } from "./audit-types";
 
-export type Severity = "critical" | "high" | "medium" | "low";
-
-export interface Finding {
-  category: "crawl" | "on-page" | "technical" | "performance";
-  severity: Severity;
-  title: string;
-  detail: string;
-  url?: string;
-}
+export type { Severity, Finding, AuditResult, StoredAuditRun } from "./audit-types";
+export { storedRunToResult } from "./audit-types";
 
 export interface PageData {
   url: string;
@@ -19,15 +14,6 @@ export interface PageData {
   h1Count: number;
   hasSchema: boolean;
   canonical: string | null;
-}
-
-export interface AuditResult {
-  domain: string;
-  startedAt: string;
-  pagesChecked: number;
-  findings: Finding[];
-  summary: Record<Severity, number>;
-  healthScore: number;
 }
 
 const SEVERITY_PENALTY: Record<Severity, number> = { critical: 15, high: 8, medium: 3, low: 1 };
@@ -51,12 +37,6 @@ async function fetchWithTimeout(url: string, timeoutMs = FETCH_TIMEOUT_MS) {
   } finally {
     clearTimeout(t);
   }
-}
-
-function normalizeDomain(input: string): string {
-  let d = input.trim();
-  if (!/^https?:\/\//i.test(d)) d = `https://${d}`;
-  return d.replace(/\/$/, "");
 }
 
 async function checkRobotsAndSitemap(baseUrl: string): Promise<{ findings: Finding[]; sitemapUrls: string[] }> {

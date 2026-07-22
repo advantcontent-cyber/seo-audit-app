@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { AuditResult, Severity, Finding } from "@/lib/audit";
+import type { AuditResult, Severity, Finding } from "@/lib/audit-types";
 import SiteHealthGauge from "./SiteHealthGauge";
 
 const SEVERITY_ORDER: Severity[] = ["critical", "high", "medium", "low"];
