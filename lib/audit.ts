@@ -333,25 +333,33 @@ async function checkPageSpeed(url: string, apiKey: string | undefined): Promise<
   return findings;
 }
 
-export async function runAudit(domainInput: string, pagespeedApiKey?: string): Promise<AuditResult> {
+export async function runAudit(
+  domainInput: string,
+  pagespeedApiKey?: string,
+  onProgress?: (step: string) => void | Promise<void>
+): Promise<AuditResult> {
   const baseUrl = normalizeDomain(domainInput);
   const findings: Finding[] = [];
 
+  await onProgress?.("Checking robots.txt & sitemap…");
   const { findings: robotsFindings, sitemapUrls } = await checkRobotsAndSitemap(baseUrl);
   findings.push(...robotsFindings);
 
   const urlsToCheck = (sitemapUrls.length > 0 ? sitemapUrls : [baseUrl]).slice(0, MAX_PAGES);
   const pages: PageData[] = [];
 
-  for (const url of urlsToCheck) {
-    const { page, findings: pageFindings } = await checkPage(url);
+  for (let i = 0; i < urlsToCheck.length; i++) {
+    await onProgress?.(`Crawling page ${i + 1} of ${urlsToCheck.length}…`);
+    const { page, findings: pageFindings } = await checkPage(urlsToCheck[i]);
     findings.push(...pageFindings);
     if (page) pages.push(page);
   }
 
+  await onProgress?.("Checking for duplicate content…");
   findings.push(...checkDuplicates(pages));
 
   // Core Web Vitals — homepage only in v1 to keep API usage/time bounded
+  await onProgress?.("Checking Core Web Vitals…");
   findings.push(...(await checkPageSpeed(baseUrl, pagespeedApiKey)));
 
   const summary: Record<Severity, number> = { critical: 0, high: 0, medium: 0, low: 0 };

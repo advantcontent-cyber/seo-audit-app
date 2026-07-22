@@ -1,4 +1,5 @@
 export type Severity = "critical" | "high" | "medium" | "low";
+export type RunStatus = "running" | "complete" | "error";
 
 export interface Finding {
   category: "crawl" | "on-page" | "technical" | "performance";
@@ -21,8 +22,10 @@ export interface StoredAuditRun {
   id: string;
   project_id: string | null;
   domain: string;
+  status: RunStatus;
+  current_step: string | null;
   pages_checked: number;
-  health_score: number;
+  health_score: number | null;
   summary: Record<Severity, number>;
   findings: Finding[];
   started_at: string;
@@ -36,6 +39,6 @@ export function storedRunToResult(row: StoredAuditRun): AuditResult {
     pagesChecked: row.pages_checked,
     findings: row.findings,
     summary: row.summary,
-    healthScore: row.health_score,
+    healthScore: row.health_score ?? 0,
   };
 }
